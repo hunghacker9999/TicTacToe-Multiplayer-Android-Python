@@ -6,7 +6,7 @@ import java.util.Observer
 
 class ClientManager(obs: Observer) : Observable() {
     private var websocket: MyWebsocket
-
+    private var name: String? = null
     init {
         this.addObserver(obs)
         websocket = MyWebsocket(this)
@@ -17,7 +17,8 @@ class ClientManager(obs: Observer) : Observable() {
         super.notifyObservers(arg)
     }
 
-    fun startConnect() {
-        websocket.start()
+    fun startConnect(name: String) {
+        this.name = name
+        websocket.start(name)
     }
 }

@@ -8,7 +8,7 @@
 
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/txtUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -16,19 +16,21 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/edittext_design"
-        android:hint="Enter your name"
+        android:hint="username"
         android:padding="10dp"
         android:textSize="16sp" />
 
+
+
     <Button
+        android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/editText"
         android:layout_marginStart="24dp"
+        android:layout_marginTop="177dp"
         android:layout_marginEnd="24dp"
-        android:text="Login"
-        android:textColor="#ffffff"
         android:background="@color/colorPrimaryDark"
-        android:id="@+id/btnLogin"/>
+        android:text="Login"
+        android:textColor="#ffffff" />
 
 </RelativeLayout>

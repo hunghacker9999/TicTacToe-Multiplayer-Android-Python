@@ -1,15 +1,37 @@
 package tictactoe.com.app.networking
 
+import android.util.Log
+import android.widget.Toast
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
 import tictactoe.com.app.Core.ClientManager
+import java.net.NetworkInterface
+
 
 class MyWebsocket(private var clientManager: ClientManager) {
 
     var host: String = "192.168.1.7"
 
-    fun start() {
-        val request = Request.Builder().url("ws://$host:8000/ws/12300").build()
+    fun getIPAddress(): String {
+        val interfaces = NetworkInterface.getNetworkInterfaces()
+        while (interfaces.hasMoreElements()) {
+            val networkInterface = interfaces.nextElement()
+            val addresses = networkInterface.inetAddresses
+            while (addresses.hasMoreElements()) {
+                val address = addresses.nextElement()
+                if (!address.isLoopbackAddress && address.isSiteLocalAddress) {
+                    return address.hostAddress
+                }
+            }
+        }
+        return ""
+    }
+
+    fun start(name: String) {
+        val ipAddress = getIPAddress().toString()
+
+        Log.d("IP", ipAddress)
+        val request = Request.Builder().url("ws://$host:8000/login/$name").build()
         val client = OkHttpClient()
 
         val webSocketListener = object : WebSocketListener() {

@@ -20,7 +20,7 @@ class ExampleUnitTest {
 }
 var host: String = "192.168.1.7"
 fun main() {
-    val request = Request.Builder().url("ws://$host:8000/ws/12300").build()
+    val request = Request.Builder().url("ws://$host:8000/login/12300").build()
     val client = OkHttpClient()
 
     val webSocketListener = object : WebSocketListener() {
