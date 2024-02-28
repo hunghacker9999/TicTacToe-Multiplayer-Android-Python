@@ -17,8 +17,8 @@ class ClientManager(obs: Observer) : Observable() {
         super.notifyObservers(arg)
     }
 
-    fun startConnect(name: String) {
+    fun startConnect(name: String, pass: String) {
         this.name = name
-        websocket.start(name)
+        websocket.start(name, pass)
     }
 }

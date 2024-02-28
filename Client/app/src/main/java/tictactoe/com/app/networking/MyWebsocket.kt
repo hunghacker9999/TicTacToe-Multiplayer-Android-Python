@@ -1,9 +1,10 @@
 package tictactoe.com.app.networking
 
+import android.R.attr
 import android.util.Log
-import android.widget.Toast
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
+import org.json.JSONObject
 import tictactoe.com.app.Core.ClientManager
 import java.net.NetworkInterface
 
@@ -12,7 +13,7 @@ class MyWebsocket(private var clientManager: ClientManager) {
 
     var host: String = "192.168.1.7"
 
-    fun getIPAddress(): String {
+    fun getIPAddress(): String? {
         val interfaces = NetworkInterface.getNetworkInterfaces()
         while (interfaces.hasMoreElements()) {
             val networkInterface = interfaces.nextElement()
@@ -27,11 +28,10 @@ class MyWebsocket(private var clientManager: ClientManager) {
         return ""
     }
 
-    fun start(name: String) {
-        val ipAddress = getIPAddress().toString()
-
-        Log.d("IP", ipAddress)
-        val request = Request.Builder().url("ws://$host:8000/login/$name").build()
+    fun start(name: String, pass: String) {
+        print("nameSocket: $name  /   $pass")
+        var url: String = "ws://$host:8000/login/$name/$pass"
+        val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
         val webSocketListener = object : WebSocketListener() {
@@ -40,8 +40,8 @@ class MyWebsocket(private var clientManager: ClientManager) {
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                println("Received message: $text")
-                clientManager.notifyObservers(text)
+                val jsonObject: JSONObject = JSONObject(text)
+                clientManager.notifyObservers(jsonObject)
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

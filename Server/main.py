@@ -21,12 +21,12 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_personal_object(self, object: json, websocket: WebSocket):
-        await websocket.send_text(object)
+    async def send_personal_text(self, txt: str, websocket: WebSocket):
+        await websocket.send_text(txt)
 
-    async def broadcast(self, obj: object):
+    async def broadcast(self, txt: str):
         for connection in self.active_connections:
-            await connection.send_json(obj)
+            await connection.send_text(txt)
 
 
 manager = ConnectionManager()
@@ -53,25 +53,58 @@ def get_users():
     return "Hello Hung"
 
 
-@app.websocket("/login/{username}/{passwork}")
+@app.websocket("/login/{username}/{password}")
 async def websocket_endpoint(websocket: WebSocket, username: str, password: str):
+    print("username: " + username +  " " + password)
     await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_json()
-            # await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(data, manager)
-            processRequest(data)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        data = {
-            "action": "QUIT",
-            "username": username,
-            "status": True
-        }
-        json_str = json.dumps(data)
 
-        await manager.broadcast(json_str)
+    # try:
+    #     while True:
+    #         data = await websocket.receive_json()
+    #         # await manager.send_personal_message(f"You wrote: {data}", websocket)
+    #         await manager.broadcast(data, manager)
+    #         processRequest(data)
+    # except WebSocketDisconnect:
+    #     manager.disconnect(websocket)
+    #     data = {
+    #         "action": "QUIT",
+    #         "username": username,
+    #         "status": "success"
+    #     }
+    #     json_str = json.dumps(data)
+    #     await manager.broadcast(json_str)
+
+    if username == "hung" and password == "123":
+
+        data1 = {
+            "action": "LOGIN",
+            "username": username,
+            "status": "success"
+        }
+        json_str = json.dumps(data1)
+
+        print
+        await manager.send_personal_text(json_str, websocket)
+
+        try:
+            while True:
+                data = await websocket.receive_text()
+                print("data receive " + data)
+                # await manager.send_personal_message(f"You wrote: {data}", websocket)
+                await manager.broadcast(data, manager)
+                processRequest(data)
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
+            data = {
+                "action": "QUIT",
+                "username": username,
+                "status": "success"
+            }
+            json_str = json.dumps(data)
+            await manager.broadcast(json_str)
+    else:
+        await manager.disconnect(websocket)
+
 
 def create_db_connection():
     connection = mysql.connector.connect(
@@ -85,12 +118,12 @@ def create_db_connection():
 def processRequest(data: json, manager: ConnectionManager, socket: WebSocket):
     action = data["action"]
     if action == "LOGIN":
-        data = {
+        data1 = {
             "action": "LOGIN",
             "username": action["username"],
-            "status": True
+            "status": "success"
         }
-        json_str = json.dumps(data)
+        json_str = json.dumps(data1)
 
         manager.send_personal_object(json_str, socket)
 

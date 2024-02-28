@@ -1,5 +1,6 @@
 package tictactoe.com.app.UI
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -20,13 +21,16 @@ class MainActivity : AppCompatActivity(), Observer {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        println("activity main")
+        val btnLogin = findViewById<Button>(R.id.btnLogin)
 
-        var btnLogin = findViewById<Button>(R.id.btnLogin)
 
-        var name = findViewById<EditText>(R.id.txtUsername).text.toString();
 
         btnLogin.setOnClickListener {
-            clientManager.startConnect(name)
+            val username = findViewById<EditText>(R.id.txtUsername).text.toString();
+            val password = findViewById<EditText>(R.id.txtPassword).text.toString()
+            clientManager.startConnect(username, password)
+
         }
     }
 
@@ -40,15 +44,23 @@ class MainActivity : AppCompatActivity(), Observer {
 
         when (action) {
             Action.LOGIN -> {
+                if (result.get("status") == "success") {
+                    val username: String = result.get("username").toString()
 
-                runOnUiThread {
-                    Toast.makeText(
-                        this,
-                        "Socket Connection Successful!  " + result.get("username"),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Socket Connection Successful! " + result.get("username"),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    val intent = Intent(this, Hall::class.java)
+
+                    intent.putExtra("username", username)
+                    startActivity(intent);
+                    clientManager.deleteObserver(this)
                 }
-                clientManager.deleteObserver(this)
+
             }
 
             else -> println("Invalid value")
