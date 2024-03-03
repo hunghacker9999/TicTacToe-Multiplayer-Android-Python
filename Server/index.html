@@ -15,7 +15,7 @@
         <script>
             var client_id = "Haakakak";
             document.querySelector("#ws-id").textContent = client_id;
-            var ws = new WebSocket(`ws://192.168.1.7:8000/login/${client_id}`);
+            var ws = new WebSocket(`ws://10.50.109.202:8000/login/${client_id}/12323`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')

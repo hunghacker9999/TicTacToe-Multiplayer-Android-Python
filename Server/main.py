@@ -9,6 +9,7 @@ import mysql.connector
 
 app = FastAPI()
 
+ip = "192.168.1.7"
 
 class ConnectionManager:
     def __init__(self):
@@ -56,8 +57,7 @@ def get_users():
 @app.websocket("/login/{username}/{password}")
 async def websocket_endpoint(websocket: WebSocket, username: str, password: str):
     print("username: " + username +  " " + password)
-    await manager.connect(websocket)
-
+    
     # try:
     #     while True:
     #         data = await websocket.receive_json()
@@ -74,36 +74,27 @@ async def websocket_endpoint(websocket: WebSocket, username: str, password: str)
     #     json_str = json.dumps(data)
     #     await manager.broadcast(json_str)
 
-    if username == "hung" and password == "123":
+    await manager.connect(websocket)
 
-        data1 = {
-            "action": "LOGIN",
-            "username": username,
-            "status": "success"
-        }
-        json_str = json.dumps(data1)
+    data1 = {
+        "action": "LOGIN",
+        "username": username,
+        "status": "success"
+    }
+    json_str = json.dumps(data1)
 
-        print
-        await manager.send_personal_text(json_str, websocket)
+    await manager.send_personal_text(json_str, websocket)
 
-        try:
-            while True:
-                data = await websocket.receive_text()
-                print("data receive " + data)
-                # await manager.send_personal_message(f"You wrote: {data}", websocket)
-                await manager.broadcast(data, manager)
-                processRequest(data)
-        except WebSocketDisconnect:
-            manager.disconnect(websocket)
-            data = {
-                "action": "QUIT",
-                "username": username,
-                "status": "success"
-            }
-            json_str = json.dumps(data)
-            await manager.broadcast(json_str)
-    else:
-        await manager.disconnect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print("data receive " + data)
+            # await manager.send_personal_text(data, websocket)
+            await manager.broadcast(data)
+            # processRequest(data)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+            
 
 
 def create_db_connection():
@@ -115,7 +106,7 @@ def create_db_connection():
     )
     return connection
 
-def processRequest(data: json, manager: ConnectionManager, socket: WebSocket):
+async def processRequest(data: json, manager: ConnectionManager, socket: WebSocket):
     action = data["action"]
     if action == "LOGIN":
         data1 = {
@@ -125,9 +116,20 @@ def processRequest(data: json, manager: ConnectionManager, socket: WebSocket):
         }
         json_str = json.dumps(data1)
 
-        manager.send_personal_object(json_str, socket)
+        manager.send_personal_text(json_str, socket)
+    elif action == "LOGOUT":
+        data = {
+                "action": "LOGOUT",
+                "status": "success"
+            }
+        json_str = json.dumps(data)
+        manager.send_personal_text(json_str, socket)
+        manager.disconnect(socket)
+        
+    # elif action == "MESSAGE":
+    #     await manager.broadcast(data, manager)
 
 if __name__ == "__main__":
     import uvicorn
     
-    uvicorn.run(app, host="192.168.1.7", port=8000)
+    uvicorn.run(app, host= ip, port=8000)
