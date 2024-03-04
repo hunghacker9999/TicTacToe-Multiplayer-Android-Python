@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/rank"
+        android:icon="@drawable/baseline_home_24"
+        android:title="Rank" />
+
+    <item
+        android:id="@+id/store"
+        android:title="Store"
+        android:icon="@drawable/baseline_accessibility_24"/>
+
+    <item
+        android:id="@+id/fab"
+        android:title=""
+        android:enabled="false"/>
+
+    <item
+        android:id="@+id/friends"
+        android:title="Friends"
+        android:icon="@drawable/baseline_album_24"/>
+
+    <item
+        android:id="@+id/setting"
+        android:title="Setting"
+        android:icon="@drawable/baseline_app_settings_alt_24"/>
+
+</menu>
