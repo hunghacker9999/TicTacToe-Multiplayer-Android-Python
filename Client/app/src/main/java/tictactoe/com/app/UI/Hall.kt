@@ -26,7 +26,6 @@ class Hall : AppCompatActivity(), Observer {
         initActionListener()
         Log.d("Hall", "this is Hall")
 
-
         val jsonObject = JSONObject()
         jsonObject.put("action", Constant.MESSAGE)
         jsonObject.put("message", "Hello World")

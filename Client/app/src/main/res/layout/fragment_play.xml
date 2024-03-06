@@ -9,16 +9,17 @@
     tools:context=".UI.home.PlayFragment">
 
 
-
     <Button
+        android:id="@+id/btnPlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_play"
         android:text="Play"
-        android:background="@color/buttonPlayActivity"
 
         />
 
     <Button
+        android:id="@+id/btnPlayWithFriend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
