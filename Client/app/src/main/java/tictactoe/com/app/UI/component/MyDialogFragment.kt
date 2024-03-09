@@ -9,8 +9,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import tictactoe.com.app.Core.Item
+import org.json.JSONException
+import org.json.JSONObject
+import tictactoe.com.app.Core.Constant
+import tictactoe.com.app.Core.User
 import tictactoe.com.app.Core.MyAdapter
+import tictactoe.com.app.Core.OnItemClickListener
 import tictactoe.com.app.R
 
 
@@ -24,31 +28,36 @@ class MyDialogFragment : BottomSheetDialogFragment() {
 
         var recyclerView: RecyclerView = rootView.findViewById(R.id.recyclerview);
 
-        val items: MutableList<Item> = ArrayList<Item>()
+        val users: MutableList<User> = ArrayList<User>()
 
-        items.add(Item("John wick","john.wick@email.com",R.drawable.d));
-        items.add(Item("Robert j", "robert.j@email.com", R.drawable.d))
-        items.add(Item("James Gunn", "james.gunn@email.com", R.drawable.e))
-        items.add(Item("Ricky tales", "rickey.tales@email.com", R.drawable.d))
-        items.add(Item("Micky mose", "mickey.mouse@email.com", R.drawable.e))
-        items.add(Item("Pick War", "pick.war@email.com", R.drawable.e))
-        items.add(Item("John wick","john.wick@email.com",R.drawable.d));
-        items.add(Item("Robert j", "robert.j@email.com", R.drawable.d))
-        items.add(Item("James Gunn", "james.gunn@email.com", R.drawable.e))
-        items.add(Item("Ricky tales", "rickey.tales@email.com", R.drawable.d))
-        items.add(Item("Micky mose", "mickey.mouse@email.com", R.drawable.e))
-        items.add(Item("Pick War", "pick.war@email.com", R.drawable.e))
-        items.add(Item("John wick","john.wick@email.com",R.drawable.d));
-        items.add(Item("Robert j", "robert.j@email.com", R.drawable.d))
-        items.add(Item("James Gunn", "james.gunn@email.com", R.drawable.e))
-        items.add(Item("Ricky tales", "rickey.tales@email.com", R.drawable.d))
-        items.add(Item("Micky mose", "mickey.mouse@email.com", R.drawable.e))
-        items.add(Item("Pick War", "pick.war@email.com", R.drawable.e))
+        users.add(User("garen", "Garen","4123",R.drawable.d));
+        users.add(User("hung", "Hung hansome","2222", R.drawable.e))
+
+        
 
         recyclerView.layoutManager = LinearLayoutManager(inflater.context)
 
-        recyclerView.adapter = MyAdapter(inflater.context, items)
+        val adapter = MyAdapter(inflater.context, users)
+        adapter.setAction(object : OnItemClickListener {
+            override fun onItemClick(user: User) {
+                val jsonObject = JSONObject()
+                try {
+                    jsonObject.put("action", Constant.SOLO)
+                    jsonObject.put("to", user.username)
+                    jsonObject.put("message", "want to solo with you")
 
+                    Constant.clientManager.webSocket.send(jsonObject.toString())
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+
+        })
+
+        recyclerView.adapter = adapter
+
+
+//        val videoLayout = rootView.findViewById<ImageView>(R.id.ivSolo)
 
 
 //        val videoLayout = rootView.findViewById<LinearLayout>(R.id.layoutVideo)

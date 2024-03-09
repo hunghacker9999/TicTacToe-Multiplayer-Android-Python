@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Hashable
 import datetime
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -9,26 +9,48 @@ import mysql.connector
 
 app = FastAPI()
 
-ip = "192.168.1.7"
+ip = "localhost"
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
+        self.active_connections = {}
+    async def connect(self, websocket: WebSocket, username: str):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections[username] = websocket
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        data = {
+        "action": "LOGIN",
+        "username": username,
+        "message" : "Login suceessful"
+        }
+
+        await websocket.send_json(data)
+
+    def disconnect(self, websocket: WebSocket, username: str):
+        del self.active_connections[username]
+        websocket.close()
 
     async def send_personal_text(self, txt: str, websocket: WebSocket):
         await websocket.send_text(txt)
 
     async def broadcast(self, txt: str):
-        for connection in self.active_connections:
-            await connection.send_text(txt)
+        for key in self.active_connections:
+            value = self.active_connections[key]
+            await value.send_text(txt)
 
+    async def send_request_solo(self, data: json):
+        receiver = data['to']
+        await self.active_connections[receiver].send_json(data)
+    
+    async def login_success(websocket: WebSocket, username: str):
+        data = {
+        "action": "LOGIN",
+        "username": username,
+        }
+        json_str = json.dumps(data)
+
+        await websocket.send_text(json_str)
+    
 
 manager = ConnectionManager()
 
@@ -37,65 +59,20 @@ manager = ConnectionManager()
 async def get():
     return HTMLResponse(open("index.html").read())
 
-
-# @app.get("/users")
-# def get_users():
-#     connection = create_db_connection()
-#     cursor = connection.cursor()
-#     cursor.execute("SELECT * FROM users")
-#     users = cursor.fetchall()
-#     cursor.close()
-#     connection.close()
-#     return {"users": users}
-
-
-@app.get("/users")
-def get_users():
-    return "Hello Hung"
-
-
 @app.websocket("/login/{username}/{password}")
 async def websocket_endpoint(websocket: WebSocket, username: str, password: str):
     print("username: " + username +  " " + password)
-    
-    # try:
-    #     while True:
-    #         data = await websocket.receive_json()
-    #         # await manager.send_personal_message(f"You wrote: {data}", websocket)
-    #         await manager.broadcast(data, manager)
-    #         processRequest(data)
-    # except WebSocketDisconnect:
-    #     manager.disconnect(websocket)
-    #     data = {
-    #         "action": "QUIT",
-    #         "username": username,
-    #         "status": "success"
-    #     }
-    #     json_str = json.dumps(data)
-    #     await manager.broadcast(json_str)
 
-    await manager.connect(websocket)
-
-    data1 = {
-        "action": "LOGIN",
-        "username": username,
-        "status": "success"
-    }
-    json_str = json.dumps(data1)
-
-    await manager.send_personal_text(json_str, websocket)
+    await manager.connect(websocket, username)
 
     try:
         while True:
-            data = await websocket.receive_text()
-            print("data receive " + data)
-            # await manager.send_personal_text(data, websocket)
-            await manager.broadcast(data)
-            # processRequest(data)
+            data = await websocket.receive_json()
+            await processRequest(data, websocket)
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(websocket, username)
             
-
+# --------------------------------------------------------
 
 def create_db_connection():
     connection = mysql.connector.connect(
@@ -106,25 +83,11 @@ def create_db_connection():
     )
     return connection
 
-async def processRequest(data: json, manager: ConnectionManager, socket: WebSocket):
+async def processRequest(data: json, socket: WebSocket):
     action = data["action"]
-    if action == "LOGIN":
-        data1 = {
-            "action": "LOGIN",
-            "username": action["username"],
-            "status": "success"
-        }
-        json_str = json.dumps(data1)
+    if action == "SOLO":
+        manager.send_request_solo(data, socket)
 
-        manager.send_personal_text(json_str, socket)
-    elif action == "LOGOUT":
-        data = {
-                "action": "LOGOUT",
-                "status": "success"
-            }
-        json_str = json.dumps(data)
-        manager.send_personal_text(json_str, socket)
-        manager.disconnect(socket)
         
     # elif action == "MESSAGE":
     #     await manager.broadcast(data, manager)

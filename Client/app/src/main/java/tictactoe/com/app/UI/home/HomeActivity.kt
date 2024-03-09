@@ -1,9 +1,13 @@
 package tictactoe.com.app.UI.home
 
+import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
@@ -13,13 +17,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.json.JSONObject
+import tictactoe.com.app.Core.Constant
 import tictactoe.com.app.R
 import tictactoe.com.app.databinding.ActivityHomeBinding
+import java.util.Observable
+import java.util.Observer
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), Observer {
     lateinit var binding: ActivityHomeBinding
-
-    lateinit var fabButton: FloatingActionButton
+    init {
+        Constant.clientManager.addObserver(this)
+    }
+//    lateinit var fabButton: FloatingActionButton
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,16 +43,17 @@ class HomeActivity : AppCompatActivity() {
             when (item.getItemId()) {
                 R.id.rank -> replaceFragment(RankFragment())
                 R.id.store -> replaceFragment(StoreFragment())
+                R.id.play -> replaceFragment(PlayFragment())
                 R.id.friends -> replaceFragment(FriendFragment())
                 R.id.setting -> replaceFragment(SettingFragment())
             }
             true
         }
-        fabButton = findViewById(R.id.fabButton)
-        fabButton.setOnClickListener {
-            replaceFragment(PlayFragment())
-
-        }
+//        fabButton = findViewById(R.id.fabButton)
+//        fabButton.setOnClickListener {
+//            replaceFragment(PlayFragment())
+//
+//        }
     }
 
     private fun replaceFragment(fragment: Fragment) {
@@ -50,6 +61,31 @@ class HomeActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.frame_layout, fragment)
         fragmentTransaction.commit()
+    }
+
+    fun showDialogSolo(context: Context, result: JSONObject) {
+        val alertDialogBuilder = AlertDialog.Builder(context)
+
+        // Set dialog title and message
+        alertDialogBuilder.setTitle("Challenge")
+        alertDialogBuilder.setMessage("${result.get("from")} + ${result.get("message")}")
+
+        // Set positive button with click listener
+        alertDialogBuilder.setPositiveButton("OK") { dialog, which ->
+            // Handle button click here
+            // You can perform any action on button click
+        }
+
+        // Set negative button with click listener
+        alertDialogBuilder.setNegativeButton("Cancel") { dialog, which ->
+            // Handle button click here
+            // You can perform any action on button click
+        }
+
+
+        // Create and show the dialog
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
     }
 
     private fun showBottomDialog() {
@@ -86,6 +122,23 @@ class HomeActivity : AppCompatActivity() {
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.window!!.attributes.windowAnimations = R.style.DialogAnimation
         dialog.window!!.setGravity(Gravity.BOTTOM)
+    }
+
+    override fun update(p0: Observable?, p1: Any?) {
+        Log.d("Home Activity", p1.toString())
+
+        val result = JSONObject(p1.toString())
+
+        when (result.get("action")) {
+            Constant.SOLO -> {
+                runOnUiThread{
+                    showDialogSolo(this, result)
+                }
+
+            }
+
+            else -> println("Invalid value")
+        }
     }
 
 }

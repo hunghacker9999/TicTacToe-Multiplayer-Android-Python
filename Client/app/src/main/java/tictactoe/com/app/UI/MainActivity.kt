@@ -8,8 +8,6 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import tictactoe.com.app.Core.Constant
-import tictactoe.com.app.Core.ClientManager
-import tictactoe.com.app.Core.User
 import tictactoe.com.app.R
 import java.io.Serializable
 import java.util.Observable

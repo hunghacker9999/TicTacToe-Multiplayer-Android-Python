@@ -18,9 +18,9 @@ class LoginActivity : AppCompatActivity(), Observer {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-//        initNetworking()
-        val intent = Intent(this, HomeActivity::class.java);
-        startActivity(intent);
+        initNetworking()
+//        val intent = Intent(this, HomeActivity::class.java);
+//        startActivity(intent);
 
         initUi()
         initListener()
@@ -35,7 +35,6 @@ class LoginActivity : AppCompatActivity(), Observer {
             val username = findViewById<EditText>(R.id.etUsername).text.toString();
             val password = findViewById<EditText>(R.id.etPassword).text.toString()
             Constant.clientManager.startConnect(username, password)
-
 
         }
     }
@@ -52,12 +51,8 @@ class LoginActivity : AppCompatActivity(), Observer {
 
         when (result.get("action")) {
             Constant.LOGIN -> {
-                if (result.get("status") == "success") {
-
-                    val intent = Intent(this, HomeActivity::class.java);
-                    startActivity(intent);
-
-                }
+                val intent = Intent(this, HomeActivity::class.java);
+                startActivity(intent);
 
             }
 

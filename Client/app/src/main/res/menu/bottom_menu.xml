@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <item
-        android:id="@+id/rank"
-        android:icon="@drawable/baseline_home_24"
-        android:title="Rank" />
+        android:id="@+id/play"
+        android:title="Play"
+        android:icon="@drawable/baseline_api_24" />
 
     <item
         android:id="@+id/store"
         android:title="Store"
         android:icon="@drawable/baseline_accessibility_24"/>
 
+
     <item
-        android:id="@+id/fab"
-        android:title=""
-        android:enabled="false"/>
+        android:id="@+id/rank"
+        android:icon="@drawable/baseline_home_24"
+        android:title="Rank" />
 
     <item
         android:id="@+id/friends"

@@ -1,6 +1,5 @@
 package tictactoe.com.app.UI
 
-import android.R.attr.name
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -10,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONException
 import org.json.JSONObject
 import tictactoe.com.app.Core.Constant
-import tictactoe.com.app.Core.User
 import tictactoe.com.app.R
 import java.util.Observable
 import java.util.Observer
